@@ -1,0 +1,208 @@
+# Week 1 복습 노트 — 2025.03.03
+**과목:** Lumped Parameter System (Theory of Linear System Analysis)
+
+---
+
+## 이번 주 한눈에 보기
+
+첫 강의로, 과목의 전체 로드맵과 핵심 용어를 소개했다. 과목 제목 "Lumped Parameter System"은 집중 매개변수 시스템을 의미하며, 수업은 선형 시스템 해석 이론을 다룬다. 핵심 흐름은 **물리 시스템 모델링 → ODE 구성 → 상태변수 형식 변환 → 고유값/고유벡터를 통한 해 도출 → Matrix Exponential & 상태전이행렬**이다. 기계계·전기계의 학제간(Interdisciplinary) 시스템 모델링, 선형화(Linearization), Jordan Canonical Form까지의 학기 전체 개요가 제시되었다.
+
+---
+
+## 1. 과목 개요 및 제목의 의미
+
+**핵심 개념**
+
+- **Lumped Parameter System** (집중 매개변수 시스템): 분포 매개변수 시스템(PDE)과 달리 공간 의존성을 무시하고 집중된 질량/스프링/댐퍼로 표현하는 시스템
+- **Lumped Mass** (집중 질량 강체) 가정이 성립할 때 유효
+- 과목의 영문 부제: **Theory of Linear System Analysis**
+
+> 💬 **Lumped vs Distributed** (질문)
+> 왜 "Lumped"인가? 실제 시스템은 분포되어 있지만, 집중 모델로 근사하면 ODE로 기술 가능하다. 이것이 PDE 대신 ODE를 쓸 수 있는 전제 조건.
+
+---
+
+## 2. 시스템 모델링 — Interdisciplinary
+
+**개념/식 제시**
+
+시스템 모델링은 물리 시스템의 동적 거동을 수학적 기술(ODE)로 변환하는 과정이다.
+
+$$\text{Physical System} \xrightarrow{\text{Modeling}} \text{ODE}$$
+
+필기에 나타난 학제간 흐름:
+$$\text{ME (기계계)} + \text{EE (전기계)} \rightarrow \text{Interdisciplinary System}$$
+
+**병진계 → 회전계 확장**
+
+| 병진계 | 회전계 |
+|--------|--------|
+| 질량 $m$ | 관성 $J$ |
+| 스프링 $k$ → $F = kx$ | 비틀림 스프링 $K_T$ → $T = K_T\theta$ |
+| 댐퍼 $c$ → $F = c\dot{x}$ | 비틀림 댐퍼 $C_T$ → $T = C_T\dot{\theta}$ |
+| 변위 $x$ | 각변위 $\theta$ |
+| 입력 힘 $F(t)$ | 입력 토크 $T_E(t)$ |
+
+**Motor ↔ Generator 이중성**
+
+필기 블록 다이어그램에서 전기-기계 결합 시스템이 도시되었다:
+- 전기 에너지(전압원 → $e_t$) + 기계 회전계(J, $\theta$) → 결합 시스템
+- 같은 장치라도 에너지 흐름 방향에 따라 **Motor(전기→기계)** 또는 **Generator(기계→전기)**로 동작
+
+> 💬 **Motor vs Generator** (질문)
+> 하이브리드 차량에서 동일 모터가 역할을 전환한다. 왼쪽이 입력이면 Motor, 오른쪽이 입력이면 Generator.
+
+---
+
+## 3. Fourier Analysis & Fourier Transform
+
+**개념/식 제시**
+
+- **Fourier Analysis**: 복잡한 시간영역 신호를 주파수 성분으로 분해
+- **Fourier Transform (F.T.)**: 시간 영역 → 주파수 영역 변환
+
+$$X(\omega) = \int_{-\infty}^{\infty} x(t)\, e^{-j\omega t}\, dt$$
+
+**실용적 의미**
+
+복잡한 시간영역 그래프 $x(t)$에서 어떤 주파수 성분($\omega_1, \omega_2, \omega_3$)이 포함되어 있는지 직관적으로 파악하기 어렵지만, FFT(Fast Fourier Transform)를 적용하면 주파수 영역에서 **크기(magnitude)** 와 **위상(phase angle)** 정보를 얻을 수 있다.
+
+---
+
+## 4. 선형화 (Linearization)
+
+**개념/식 제시**
+
+실제 시스템은 비선형이지만, 선형 해석 기법 적용을 위해 선형화가 필요하다.
+
+$$\text{Nonlinear ODE} \xrightarrow{\text{Linearization}} \text{Linear ODE}$$
+
+**방법론 (필기에 명시)**
+
+$$\text{Power Series} \begin{cases} \text{Taylor Series} \\ \text{Fourier Series} \end{cases}$$
+
+- **Taylor Series**: 평형점 근방에서 전개 → 고차항 무시 → 선형 근사
+- 이 과목의 주요 방법: Taylor Series 전개
+
+> 💬 **선형화 방법** (질문)
+> 비선형 ODE를 선형화하는 가장 일반적인 방법은? → **Taylor Series** 전개 (평형점 $x_0$ 근방).
+
+---
+
+## 5. 1차 ODE와 State-Variable Form
+
+**개념/식 제시**
+
+1-DOF 시스템의 운동방정식 (2차 ODE):
+
+$$M\ddot{x} + c\dot{x} + kx = f(t)$$
+
+일반해:
+$$x(t) = x_h(t) + x_p(t)$$
+
+- $x_h(t)$: 동차해 (homogeneous solution) → 과도 응답 (transient response)
+- $x_p(t)$: 특수해 (particular solution) → 정상상태 응답 (steady-state response)
+
+**State-Variable Form으로 변환**
+
+$n$개의 2차 ODE → $2n$개의 1차 ODE로 변환:
+
+$$\dot{\mathbf{x}}(t) = A\mathbf{x}(t) + B\mathbf{u}(t)$$
+
+- $A$: **System Matrix** (시스템 행렬) — $m$, $c$, $k$ 정보를 담음
+- $B$: **Constant Matrix** (입력 행렬)
+
+**왜 State-Variable Form인가?**
+1. 해석적 해 도출 가능
+2. **수치 해석 (Runge-Kutta 등)에 바로 적용 가능**
+3. 다자유도 시스템에 일관되게 적용 가능
+
+---
+
+## 6. 고유값/고유벡터와 해의 형태
+
+**개념/식 제시**
+
+State-Variable Form에서 해는 고유값(eigenvalue) 분석으로 구할 수 있다:
+
+$$\mathbf{x}(t) = e^{At}\mathbf{x}(0)$$
+
+자유 응답(zero-input)에서 해의 기본 형태:
+
+$$\mathbf{x}(t) = e^{\lambda_i t}\mathbf{v}_i, \quad \lambda_i \text{: eigenvalue},\ \mathbf{v}_i \text{: eigenvector}$$
+
+**유도 과정**
+
+출발: $\dot{\mathbf{x}} = A\mathbf{x}$  
+↓ 해의 형태 가정 $\mathbf{x}(t) = e^{\lambda t}\mathbf{v}$  
+↓ 대입: $\lambda e^{\lambda t}\mathbf{v} = Ae^{\lambda t}\mathbf{v}$  
+결론: $(A - \lambda I)\mathbf{v} = 0$ → **특성방정식** $\det(A - \lambda I) = 0$
+
+---
+
+## 7. Matrix Exponential & 상태전이행렬
+
+**개념/식 제시**
+
+$$e^{At} = \Phi(t): \text{ State Transition Matrix (상태전이행렬)}$$
+
+**전체 해의 형태 (입력 포함)**
+
+$$\mathbf{x}(t) = e^{At}\mathbf{x}(0) + \int_0^t e^{A(t-\tau)}B\mathbf{u}(\tau)\,d\tau$$
+
+- $e^{At}$: 자유응답 부분 (transient)
+- 적분 항: 강제응답 (forced response)
+
+**Matrix Exponential 계산법**
+
+$$e^{At} = \Phi\, e^{\Lambda t}\, \Phi^{-1}$$
+
+- $\Phi$: 고유벡터 행렬 (eigenvector matrix)
+- $e^{\Lambda t}$: 대각 행렬 (대각 성분 = $e^{\lambda_i t}$)
+- $\Phi^{-1}$: 고유벡터 역행렬
+
+> 이 등식의 증명에 **Cayley-Hamilton Theorem** 사용
+
+**왜 "Transition"인가?**
+상태전이 = 초기 상태에서 임의 시점 상태로의 전이 → 과도응답(transient)과 직결
+
+---
+
+## 8. Jordan Canonical Form (소개)
+
+**개념 소개**
+
+위의 eigenvalue 분석은 **모든 고유값이 distinct(서로 다름)**한 경우에 성립한다.
+
+**Multiplicity** 문제: 특성 다항식에서 중복 고유값이 존재하면?
+
+$$\det(\lambda I - A) = (\lambda - \lambda_1)^2(\lambda - \lambda_3)\cdots = 0$$
+
+중복도(multiplicity) = 2인 경우 → 독립적인 고유벡터가 $n-1$개밖에 없을 수 있다 → **Jordan Canonical Form** 적용 필요
+
+> 다음 강의부터 세부 내용 커버 예정
+
+---
+
+## 성적 구성 (과목 정보)
+
+| 항목 | 비율 |
+|------|------|
+| 시험 (중간 30% + 기말 30%) | 60% |
+| 출석 | 20% |
+| 숙제 (노고목) | 20% |
+
+---
+
+## 복습 포인트
+
+- [ ] Translational ↔ Rotational 시스템의 매개변수 대응 관계 암기
+- [ ] 2차 ODE → State-Variable Form 변환 손으로 직접 유도해보기
+- [ ] $e^{At} = \Phi e^{\Lambda t}\Phi^{-1}$ 의미와 유도 흐름 정리
+- [ ] Cayley-Hamilton Theorem 기본 내용 예습
+- [ ] Jordan Canonical Form이 필요한 조건 (multiplicity) 이해
+
+## 불명확한 부분
+
+- 강의 초반 한국어 용어 토론 부분 녹음 불명확 → 핵심 내용만 반영
+- Motor/Generator 블록 다이어그램 세부 회로 구성: 필기 이미지 기준으로 정리 [확인필요]
